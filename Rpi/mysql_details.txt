@@ -1,0 +1,1 @@
+CREATE TABLE gasdat (tdate DATETIME, zone TEXT, type TEXT, gasreading NUMERIC);

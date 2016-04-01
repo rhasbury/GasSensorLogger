@@ -12,7 +12,7 @@ import signal
 import serial
 
 currentLocation = 'basement'
-loginterval = 10 # in seconds
+loginterval = 600 # in seconds
 
 serialPort = '/dev/ttyUSB0'
 
@@ -57,17 +57,15 @@ class GasPoller(threading.Thread):
         
               
         ser = serial.Serial(serialPort, 9600, bytesize=8, parity='N', stopbits=1, timeout=1, rtscts=False, dsrdtr=False)
+        #ser.setRTS(0) 
         time.sleep(3) # creating connection will reset arduino, need to wait for reset complete. 
-        while gpsp.running:            
-            ser.setRTS(0)                         
+        while gpsp.running:      
             time.sleep(0.1)
             ser.flushInput()
+            
             ser.write(b'get_a0;')       
             time.sleep(0.1)
-            #print(ser.inWaiting())
-            #a0 = ser.read(size=64)
-            a0 = ser.readline()
-            #print(a0) 
+            a0 = ser.readline()            
             ser.write(b'get_a1;')
             time.sleep(0.1)
             a1 = ser.readline()
