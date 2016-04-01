@@ -21,9 +21,6 @@ void setup()
 void loop()
 {
   
-  //Serial.println(analogRead(gasPin));
-  //Serial.println(analogRead(gasPin1));
-  //Serial.println(analogRead(gasPin2));
 
   if (stringComplete) {
     //Serial.println(inputString);
@@ -38,13 +35,14 @@ void loop()
     if(inputString.indexOf("get_a2") >= 0){
       Serial.println(analogRead(gasPin2));    
     }
- 
-//    Serial.println(inputString);    
+
+    
+    //Serial.println(inputString);    
     inputString = "";
     stringComplete = false;
   }
   
-  delay(10); // Print value every 1 sec.
+  delay(100); // Print value every 1 sec.
 }
 
 
@@ -62,7 +60,7 @@ void serialEvent() {
     inputString += inChar;
     // if the incoming character is a newline, set a flag
     // so the main loop can do something about it:
-    if (inChar == '\n') {
+    if (inChar == '\n' or inChar == ';') {
       stringComplete = true;
     }
   }

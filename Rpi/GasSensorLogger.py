@@ -1,6 +1,6 @@
 import os
 import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='/home/pi/temperature/Loggingonly.log', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='/home/pi/GasSensorLogger/Rpi/gassensor.log', level=logging.DEBUG)
 import datetime
 import pymysql.cursors
 import time
@@ -11,6 +11,8 @@ import math
 import signal
 import serial
 
+currentLocation = 'basement'
+loginterval = 10 # in seconds
 
 serialPort = '/dev/ttyUSB0'
 
@@ -26,11 +28,11 @@ def signal_quitting(signal, frame):
     sys.exit(0)    
 
 
-def logGaslineDB(type, gasreading):    
+def logGaslineDB(type, location, gasreading):    
     try:
         connection = pymysql.connect(host='localhost', user='monitor', passwd='password', db='temps', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
-            cursor.execute ("INSERT INTO gasdat values(NOW(), %s, %s)", (type, gasreading))
+            cursor.execute ("INSERT INTO gasdat values(NOW(), %s, %s, %s)", (location, type, gasreading))
         connection.commit()
         logging.debug("logTempLineDB() Rows logged: %s" % cursor.rowcount)
         connection.close()
@@ -45,31 +47,45 @@ class GasPoller(threading.Thread):
         threading.Thread.__init__(self)
         self.current_value = None
         self.running = True #setting the thread running to true
+        
 
  
     def run(self):
         global gpsd
         global gpsp
         
+        
               
-        while gpsp.running:
+        ser = serial.Serial(serialPort, 9600, bytesize=8, parity='N', stopbits=1, timeout=1, rtscts=False, dsrdtr=False)
+        time.sleep(3) # creating connection will reset arduino, need to wait for reset complete. 
+        while gpsp.running:            
+            ser.setRTS(0)                         
+            time.sleep(0.1)
+            ser.flushInput()
+            ser.write(b'get_a0;')       
+            time.sleep(0.1)
+            #print(ser.inWaiting())
+            #a0 = ser.read(size=64)
+            a0 = ser.readline()
+            #print(a0) 
+            ser.write(b'get_a1;')
+            time.sleep(0.1)
+            a1 = ser.readline()
+            ser.write(b'get_a2;')
+            time.sleep(0.1)
+            a2 = ser.readline()
             
-            with serial.Serial(serialPort) as ser:            
-               ser.write(b'get_a0')
-               a0 = ser.readline()
-               ser.write(b'get_a1')
-               a1 = ser.readline()
-               ser.write(b'get_a2')
-               a2 = ser.readline()
-               
-            
-            logGaslineDB("MQ-135", int(a0))
-            logGaslineDB("MQ-5", int(a1))
-            logGaslineDB("MQ-9", int(a2))
+            print("a0: {}  a1: {}  a2:  {}".format(int(a0), int(a1), int(a2)))
+        
+            logGaslineDB("MQ-135", currentLocation, int(a0))            
+            logGaslineDB("MQ-5", currentLocation, int(a1))
+            logGaslineDB("MQ-9", currentLocation, int(a2))
             
                 
-            time.sleep(600)
-             
+            time.sleep(loginterval)
+        
+        ser.close()
+        print("ended")
  
  
 if __name__ == "__main__":
@@ -80,11 +96,11 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_quitting)
 
 
-    try:        
+#    try:        
         #Start Gas polling thread
-        gpsp = GasPoller()
-        gpsp.start()
+    gpsp = GasPoller()
+    gpsp.start()
   
-        while True: time.sleep(100)
-    except:
-        raise    
+    while True: time.sleep(100)
+#    except:
+#        raise    
