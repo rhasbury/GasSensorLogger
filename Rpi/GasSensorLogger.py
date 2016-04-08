@@ -1,6 +1,6 @@
 import os
 import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='/home/pi/GasSensorLogger/Rpi/gassensor.log', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='./gassensor.log', level=logging.DEBUG)
 import datetime
 import pymysql.cursors
 import time
