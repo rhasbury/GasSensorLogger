@@ -7,12 +7,28 @@ const int gasPin = A0; //GAS sensor output pin to Arduino analog A0 pin
 const int gasPin1 = A1; //GAS sensor output pin to Arduino analog A0 pin
 const int gasPin2 = A2; //GAS sensor output pin to Arduino analog A0 pin
 
+// constants for Sharp GP2Y1010AU0F Particle Sensor
+const int ledPower = 2;
+const int delayTime=280;
+const int dustPin=A3;
+const int delayTime2=40;
+
+ /*
+ Sharp pin 1 (V-LED)   => 5V (connected to 150ohm resister)
+ Sharp pin 2 (LED-GND) => Arduino GND pin
+ Sharp pin 3 (LED)     => Arduino pin D2
+ Sharp pin 4 (S-GND)   => Arduino GND pin
+ Sharp pin 5 (Vo)      => Arduino A3 pin
+ Sharp pin 6 (Vcc)     => 5V
+ */
+
 
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 
 void setup()
 {
+  pinMode(ledPower,OUTPUT);
   Serial.begin(9600); //Initialize serial port - 9600 bps
    // reserve 200 bytes for the inputString:
   inputString.reserve(200);
@@ -35,6 +51,22 @@ void loop()
     if(inputString.indexOf("get_a2") >= 0){
       Serial.println(analogRead(gasPin2));    
     }
+    
+    if(inputString.indexOf("get_dust") >= 0){
+      
+      
+      digitalWrite(ledPower,LOW); // power on the LED
+      delayMicroseconds(delayTime);
+      //dustVal=analogRead(dustPin); // read the dust value
+      Serial.println(analogRead(dustPin));      
+      delayMicroseconds(delayTime2);
+      digitalWrite(ledPower,HIGH); // turn the LED off
+      //delayMicroseconds(offTime);
+      
+      
+      //Serial.println(analogRead(gasPin2));    
+    }
+
 
     
     //Serial.println(inputString);    

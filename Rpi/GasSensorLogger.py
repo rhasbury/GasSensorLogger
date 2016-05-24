@@ -69,14 +69,18 @@ class GasPoller(threading.Thread):
                 time.sleep(0.1)
                 a1 = ser.readline()
                 ser.write(b'get_a2;')
-                time.sleep(0.1)
+                time.sleep(0.1)                
                 a2 = ser.readline()
+                ser.write(b'get_dust;')
+                time.sleep(0.1)
+                dust = ser.readline()
                 
-                print("a0: {}  a1: {}  a2:  {}".format(int(a0), int(a1), int(a2)))
+                print("a0: {}  a1: {}  a2:  {}".format(int(a0), int(a1), int(a2), int(dust)))
             
                 logGaslineDB("MQ-135", currentLocation, int(a0))            
                 logGaslineDB("MQ-5", currentLocation, int(a1))
                 logGaslineDB("MQ-9", currentLocation, int(a2))
+                logGaslineDB("GP2Y1010AU0F", currentLocation, int(dust))
             
                 
                 time.sleep(loginterval)
