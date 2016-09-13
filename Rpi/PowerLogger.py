@@ -96,7 +96,7 @@ class PowerPoller(threading.Thread):
                 ser.flushInput()
                 
                 ser.write(b'get_power;')       
-                time.sleep(0.5)
+                time.sleep(2)
                                                 
                 bytesresult = ser.readline()
                 #print(bytesresult)
@@ -108,6 +108,10 @@ class PowerPoller(threading.Thread):
                 logPowerLineDB("Line3", currentLocation, power["power3"]["power"], power["power3"]["averagecount"])
                 logPowerLineDB("Line4", currentLocation, power["power4"]["power"], power["power4"]["averagecount"])    
                 
+                #print("Line1 {}".format(power["power1"]["current"]))
+                #print("Line2 {}".format(power["power2"]["current"]))
+                #print("Line3 {}".format(power["power3"]["current"]))
+                #print("Line4 {}".format(power["power4"]["current"]))
                 
             except:
                 
@@ -143,7 +147,7 @@ if __name__ == "__main__":
             time.sleep(0.5)
             ser.flushInput()               
             ser.write(b'whatis;')       
-            time.sleep(0.5)
+            time.sleep(2)
             result = ser.readline()
             print("Testing port {}".format(port))
             if(result.find(b'power') >= 0):
