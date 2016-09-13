@@ -103,9 +103,10 @@ class PowerPoller(threading.Thread):
                 power = json.loads(bytesresult.decode("utf-8"))
                 #print(power)
             
-                logPowerLineDB("phase0", currentLocation, power["power0"]["power"], power["power0"]["averagecount"])
-                logPowerLineDB("phase1", currentLocation, power["power1"]["power"], power["power1"]["averagecount"])
-    
+                logPowerLineDB("Line1", currentLocation, power["power1"]["power"], power["power1"]["averagecount"])
+                logPowerLineDB("Line2", currentLocation, power["power2"]["power"], power["power2"]["averagecount"])
+                logPowerLineDB("Line3", currentLocation, power["power3"]["power"], power["power3"]["averagecount"])
+                logPowerLineDB("Line4", currentLocation, power["power4"]["power"], power["power4"]["averagecount"])    
                 
                 
             except:
