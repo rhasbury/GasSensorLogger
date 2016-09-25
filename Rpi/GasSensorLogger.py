@@ -14,8 +14,9 @@ import glob
 
 currentLocation = 'basement'
 loginterval = 300 # in seconds
+errordelay = 3000 # in seconds
 
-serialPort = '/dev/ttyUSB0'
+serialPort = None
 baud = 9600
 
 gpsd = None #seting the global variable
@@ -77,7 +78,7 @@ class GasPoller(threading.Thread):
                 time.sleep(0.1)
                 dust = ser.readline()
                 
-                print("a0: {}  a1: {}  a2:  {}".format(int(a0), int(a1), int(a2), int(dust)))
+                print("a0: {}  a1: {}  a2:  {} dust {}".format(int(a0), int(a1), int(a2), int(dust)))
             
                 logGaslineDB("MQ-135", currentLocation, int(a0))            
                 logGaslineDB("MQ-5", currentLocation, int(a1))
@@ -86,9 +87,12 @@ class GasPoller(threading.Thread):
             
                 
                 time.sleep(loginterval)
+            except (OSError, serial.SerialException):
+                logging.error("Serial Exception in main logging loop ", exc_info=True)
+                time.sleep(errordelay)
             except:
-                 logging.error("Exception in main logging loop ", exc_info=True)
-            
+                logging.error("Some other Exception in main logging loop ", exc_info=True)
+                time.sleep(errordelay)
         
         ser.close()
         print("ended")
@@ -136,7 +140,7 @@ if __name__ == "__main__":
     for port in availableports:
         try:
             ser = serial.Serial(port, baud, bytesize=8, parity='N', stopbits=1, timeout=1, rtscts=False, dsrdtr=False)
-            time.sleep(3)
+            time.sleep(4)
             ser.flushInput()               
             ser.write(b'get_a0;')       
             time.sleep(0.5)
@@ -155,7 +159,9 @@ if __name__ == "__main__":
             pass
         except:
             raise
-
+    if(serialPort == None):
+        logging.error("Gas logger device not found")
+        exit()
 
 #    try:        
         #Start Gas polling thread
