@@ -1,4 +1,3 @@
-
 // EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
 
 #include "EmonLib.h"                   // Include Emon Library
@@ -23,8 +22,8 @@ void setup()
   inputString.reserve(200);
   emon1.current(0, 111.11);             // Current: input pin, calibration.
   emon2.current(1, 111.11);             // Current: input pin, calibration.
-  emon3.current(2, 606.1);             // Current: input pin, calibration.
-  emon4.current(3, 606.1);             // Current: input pin, calibration.
+  emon3.current(2, 606.0);             // Current: input pin, calibration.
+  emon4.current(3, 606.0);             // Current: input pin, calibration.
 }
 
 void loop()
@@ -69,14 +68,14 @@ void loop()
       Serial.print(powersum2/AverageCount);           // Irms 
       
       Serial.print("}, \"power3\" : { \"power\" : ");
-      Serial.print((powersum3/AverageCount) * 120.0);         // Apparent power
+      Serial.print((powersum3/AverageCount) * 231.0);         // Apparent power
       Serial.print(", \"averagecount\" : ");      
       Serial.print(AverageCount);         
       Serial.print(", \"current\" : ");
       Serial.print(powersum3/AverageCount);           // Irms      
       
       Serial.print("}, \"power4\" : { \"power\" : ");
-      Serial.print((powersum4/AverageCount) * 120.0);         // Apparent power
+      Serial.print((powersum4/AverageCount) * 231.0);         // Apparent power
       Serial.print(", \"averagecount\" : ");      
       Serial.print(AverageCount);         
       Serial.print(", \"current\" : ");
