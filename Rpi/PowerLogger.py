@@ -103,10 +103,30 @@ class PowerPoller(threading.Thread):
                 power = json.loads(bytesresult.decode("utf-8"))
                 #print(power)
             
-                logPowerLineDB("Line1", currentLocation, power["power1"]["power"], power["power1"]["averagecount"])
-                logPowerLineDB("Line2", currentLocation, power["power2"]["power"], power["power2"]["averagecount"])
-                logPowerLineDB("Line3", currentLocation, power["power3"]["power"], power["power3"]["averagecount"])
-                logPowerLineDB("Line4", currentLocation, power["power4"]["power"], power["power4"]["averagecount"])    
+                #logPowerLineDB("Line1", currentLocation, power["power1"]["power"], power["power1"]["averagecount"])
+                #logPowerLineDB("Line2", currentLocation, power["power2"]["power"], power["power2"]["averagecount"])
+                #logPowerLineDB("Line3", currentLocation, power["power3"]["power"], power["power3"]["averagecount"])
+                #logPowerLineDB("Line4", currentLocation, power["power4"]["power"], power["power4"]["averagecount"])    
+                
+                hoursoflogging = (power["power1"]["averagecount"] * 1.5)/(60*60)  # Each arduino average is 1.5 seconds
+                #print("hours of logging {}".format(hoursoflogging))
+                
+                onetwentyamps = abs(float(power["power3"]["current"]) - float(power["power4"]["current"]))                
+                twofortyamps = float(power["power3"]["current"]) - onetwentyamps
+                
+                #print("onetwenty amps {}".format(onetwentyamps))
+                #print("twoforty amps {}".format(twofortyamps))
+                                                                     
+                twofortyload = (twofortyamps * 240) * hoursoflogging
+                onetwentyload = (onetwentyamps * 120) * hoursoflogging
+                
+                #print("onetwenty loads {}".format(onetwentyload))
+                #print("twoforty loads {}".format(twofortyload))
+                                   
+                logPowerLineDB("240v Load", currentLocation, twofortyload, power["power4"]["averagecount"])
+                logPowerLineDB("120v Load", currentLocation, onetwentyload, power["power4"]["averagecount"])
+                                   
+                                   
                 
                 #print("Line1 {}".format(power["power1"]["current"]))
                 #print("Line2 {}".format(power["power2"]["current"]))
