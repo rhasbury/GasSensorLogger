@@ -122,9 +122,11 @@ class PowerPoller(threading.Thread):
                 
                 #print("onetwenty loads {}".format(onetwentyload))
                 #print("twoforty loads {}".format(twofortyload))
-                                   
-                logPowerLineDB("240v Load", currentLocation, twofortyload, power["power4"]["averagecount"])
-                logPowerLineDB("120v Load", currentLocation, onetwentyload, power["power4"]["averagecount"])
+                
+                logPowerLineDB("Clamp1", currentLocation, (power["power1"]["power"]*hoursoflogging), power["power1"]["averagecount"])
+                logPowerLineDB("Clamp2", currentLocation, (power["power2"]["power"]*hoursoflogging), power["power2"]["averagecount"])                   
+                logPowerLineDB("240v Total", currentLocation, twofortyload, power["power4"]["averagecount"])
+                logPowerLineDB("120v Total", currentLocation, onetwentyload, power["power4"]["averagecount"])
                                    
                                    
                 
