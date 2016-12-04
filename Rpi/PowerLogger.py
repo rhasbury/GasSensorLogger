@@ -111,8 +111,10 @@ class PowerPoller(threading.Thread):
                 hoursoflogging = (power["power1"]["averagecount"] * 1.5)/(60*60)  # Each arduino average is 1.5 seconds
                 #print("hours of logging {}".format(hoursoflogging))
                 
-                onetwentyamps = abs(float(power["power3"]["current"]) - float(power["power4"]["current"]))                
-                twofortyamps = float(power["power3"]["current"]) - onetwentyamps
+                onetwentyamps = abs(float(power["power3"]["current"] - float(power["power4"]["current"])))                
+                twofortyamps = max(float(power["power3"]["current"]),float(power["power4"]["current"])) - onetwentyamps
+                
+                
                 
                 #print("onetwenty amps {}".format(onetwentyamps))
                 #print("twoforty amps {}".format(twofortyamps))
