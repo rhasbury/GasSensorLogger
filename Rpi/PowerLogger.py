@@ -2,6 +2,8 @@ import os
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='/home/pi/powerlogger.log', level=logging.DEBUG)
 import datetime
+
+
 import pymysql.cursors
 import time
 from time import mktime
@@ -119,8 +121,8 @@ class PowerPoller(threading.Thread):
                 #print("onetwenty amps {}".format(onetwentyamps))
                 #print("twoforty amps {}".format(twofortyamps))
                                                                      
-                twofortyload = (twofortyamps * 240) * hoursoflogging
-                onetwentyload = (onetwentyamps * 120) * hoursoflogging
+                twofortyload = (twofortyamps * 226) * hoursoflogging
+                onetwentyload = (onetwentyamps * 113) * hoursoflogging
                 
                 #print("onetwenty loads {}".format(onetwentyload))
                 #print("twoforty loads {}".format(twofortyload))
