@@ -102,6 +102,11 @@ class PowerPoller(threading.Thread):
                               
         ser = serial.Serial(serialPort, 115200, bytesize=8, parity='N', stopbits=1, timeout=1, rtscts=False, dsrdtr=False)
         #ser.setRTS(0) 
+        hoursoflogging = 0     
+        twofortyload = 0
+        onetwentyload = 0 
+        clamp1load = 0   
+        clamp2load = 0 
         time.sleep(1) # creating connection will reset arduino, need to wait for reset complete. 
         while gpsp.running:      
             try:
