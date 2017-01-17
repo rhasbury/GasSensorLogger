@@ -54,28 +54,28 @@ void loop()
       //double Irms = emon1.calcIrms(1480);  // Calculate Irms only          
       
       Serial.print("{\"power1\" : { \"power\" : ");
-      Serial.print((powersum1/AverageCount) * 120.0);         // Apparent power
+      Serial.print((powersum1/AverageCount) * 113.0);         // Apparent power
       Serial.print(", \"averagecount\" : ");
       Serial.print(AverageCount);         
       Serial.print(", \"current\" : ");
       Serial.print(powersum1/AverageCount);          // Irms    
       
       Serial.print("}, \"power2\" : { \"power\" : ");
-      Serial.print((powersum2/AverageCount) * 120.0);         // Apparent power
+      Serial.print((powersum2/AverageCount) * 113.0);         // Apparent power
       Serial.print(", \"averagecount\" : ");      
       Serial.print(AverageCount);         
       Serial.print(", \"current\" : ");
       Serial.print(powersum2/AverageCount);           // Irms 
       
       Serial.print("}, \"power3\" : { \"power\" : ");
-      Serial.print((powersum3/AverageCount) * 231.0);         // Apparent power
+      Serial.print((powersum3/AverageCount) * 226.0);         // Apparent power
       Serial.print(", \"averagecount\" : ");      
       Serial.print(AverageCount);         
       Serial.print(", \"current\" : ");
       Serial.print(powersum3/AverageCount);           // Irms      
       
       Serial.print("}, \"power4\" : { \"power\" : ");
-      Serial.print((powersum4/AverageCount) * 231.0);         // Apparent power
+      Serial.print((powersum4/AverageCount) * 226.0);         // Apparent power
       Serial.print(", \"averagecount\" : ");      
       Serial.print(AverageCount);         
       Serial.print(", \"current\" : ");
