@@ -106,7 +106,9 @@ class PowerPoller(threading.Thread):
         twofortyload = 0
         onetwentyload = 0 
         clamp1load = 0   
-        clamp2load = 0 
+        clamp2load = 0
+        lastlog = datetime.datetime.utcnow()
+		
         time.sleep(1) # creating connection will reset arduino, need to wait for reset complete. 
         while gpsp.running:      
             try:
