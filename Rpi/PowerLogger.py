@@ -43,7 +43,7 @@ def signal_quitting(signal, frame):
 
 def logPowerLineDB(type, location, powereading, averagecount):    
     try:
-        connection = pymysql.connect(host='192.168.0.105', user='monitor', passwd='password', db='temps', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+        connection = pymysql.connect(host='localhost', user='monitor', passwd='password', db='temps', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
             sql = "INSERT INTO powerdat values(NOW(), '{}', '{}', '{}', '{}')".format(location, type, powereading, averagecount)
             print(sql)
@@ -151,6 +151,7 @@ class PowerPoller(threading.Thread):
                     onetwentyload = 0 
                     clamp1load = 0   
                     clamp2load = 0 
+                    lastlog = datetime.datetime.utcnow()
                     
             except:                
                 print(bytesresult)
@@ -162,7 +163,7 @@ class PowerPoller(threading.Thread):
             time.sleep(liveinterval)
             
         ser.close()
-        print("ended")
+        logging.info("ended")
     
     def to_JSON(self):
         return json.dumps({"twofortywatts" : self.twofortywatts, "onetwentywatts" : self.onetwentywatts, "clamp1watts" : self.clamp1watts, "clamp2watts" : self.clamp2watts  })
@@ -199,7 +200,7 @@ if __name__ == "__main__":
 
     # Create logger and set options
     logging.getLogger().setLevel(logging.INFO)
-    logging.info("Logging started")
+    logging.info("Logfile Started")
     signal.signal(signal.SIGINT, signal_quitting)
 
 
@@ -216,37 +217,39 @@ if __name__ == "__main__":
             ser.write(b'whatis;')       
             time.sleep(2)
             result = ser.readline()
-            print("Testing port {}".format(port))            
+            logging.info("Testing port {}".format(port))            
             if(result.find(b'power') >= 0):
                 serialPort = port
-                print("Found power logger on serial port {}".format(serialPort))
+                logging.info("Found power logger on serial port {}".format(serialPort))
                 ser.close()
                 break
             
-            print("closind read result {}".format(result))
+            logging.info("closing read result {}".format(result))
             ser.close()
         except:
+            logging.error("serial port not found")
             raise
         
 
     if(serialPort == None):
-        print("No monitor found. Exiting")
+        logging.info("No monitor found. Exiting")
         exit()
         
 #    try:        
         #Start Gas polling thread
-    print("Starting logging")
+    logging.info("Starting logging")
     gpsp = PowerPoller()
     gpsp.start()
     
     
     # Create the data server and assigning the request handler        
+    logging.info("Starting socket server")
     server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
     serverthread = threading.Thread(target=server.serve_forever)
     serverthread.daemon = True
     serverthread.start()
     #my_logger.info("Data sockect listner started")
-    print("Data sockect listner started")
+    logging.info("Socket Server listening")
   
     while True: time.sleep(100)
 #    except:
