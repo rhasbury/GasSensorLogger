@@ -131,7 +131,7 @@ class PowerPoller(threading.Thread):
                 self.clamp2watts = float(power["power2"]["current"]) * onetwentyvoltage
                 
                 # accumulates time measured between database logs. 
-                hoursoflogging = hoursoflogging + (power["power1"]["averagecount"] * 1.5)/(60*60)  # Each arduino average is 1.5 seconds. This holds "hours"
+                hoursoflogging = (power["power1"]["averagecount"] * 1.5)/(60*60)  # Each arduino average is 1.5 seconds. This holds "hours"
                 
                 # these accumulate the measured amount of KwH between each logging cycle. 
                 twofortyload  = twofortyload  + ((twofortyamps * twofortyvoltage) * hoursoflogging )
@@ -146,7 +146,7 @@ class PowerPoller(threading.Thread):
                     logPowerLineDB("Clamp2", currentLocation, (power["power2"]["power"]*hoursoflogging), power["power2"]["averagecount"])                   
                     logPowerLineDB("240v Total", currentLocation, twofortyload, power["power4"]["averagecount"])
                     logPowerLineDB("120v Total", currentLocation, onetwentyload, power["power4"]["averagecount"])
-                    hoursoflogging = 0     
+                    #hoursoflogging = 0     
                     twofortyload = 0
                     onetwentyload = 0 
                     clamp1load = 0   
@@ -227,7 +227,7 @@ if __name__ == "__main__":
             logging.info("closing read result {}".format(result))
             ser.close()
         except:
-            logging.error("serial port not found")
+            logging.error("serial port not found", exc_info=True)
             raise
         
 
@@ -244,12 +244,15 @@ if __name__ == "__main__":
     
     # Create the data server and assigning the request handler        
     logging.info("Starting socket server")
-    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
-    serverthread = threading.Thread(target=server.serve_forever)
-    serverthread.daemon = True
-    serverthread.start()
-    #my_logger.info("Data sockect listner started")
-    logging.info("Socket Server listening")
+    try:
+        server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
+        serverthread = threading.Thread(target=server.serve_forever)
+        serverthread.daemon = True
+        serverthread.start()
+        logging.info("Socket Server listening")
+    except:        
+        logging.error("Socket Server start failed", exc_info=True)
+        raise
   
     while True: time.sleep(100)
 #    except:
