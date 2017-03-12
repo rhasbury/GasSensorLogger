@@ -93,8 +93,10 @@ class PowerPoller(threading.Thread):
         self.running = True #setting the thread running to true
         self.twofortywatts = 0
         self.onetwentywatts = 0
+        self.totalwatts = 0
         self.clamp1watts = 0 
         self.clamp2watts = 0
+		
  
     def run(self):
         global gpsd
@@ -129,7 +131,10 @@ class PowerPoller(threading.Thread):
                 self.onetwentywatts = onetwentyamps * onetwentyvoltage
                 self.clamp1watts = float(power["power1"]["current"]) * onetwentyvoltage
                 self.clamp2watts = float(power["power2"]["current"]) * onetwentyvoltage
-                
+                self.totalwatts = self.twofortywatts + self.onetwentywatts
+				
+				
+				
                 # accumulates time measured between database logs. 
                 hoursoflogging = (power["power1"]["averagecount"] * 1.5)/(60*60)  # Each arduino average is 1.5 seconds. This holds "hours"
                 
@@ -138,7 +143,8 @@ class PowerPoller(threading.Thread):
                 onetwentyload = onetwentyload + ((onetwentyamps * onetwentyvoltage) * hoursoflogging ) 
                 clamp1load = clamp1load + ((float(power["power1"]["current"])* onetwentyvoltage) * hoursoflogging)   
                 clamp2load = clamp2load + ((float(power["power2"]["current"])* onetwentyvoltage) * hoursoflogging)
-            
+            	
+				
             
                 if(datetime.datetime.utcnow() - lastlog > datetime.timedelta(seconds=loginterval)):
                         
@@ -146,6 +152,7 @@ class PowerPoller(threading.Thread):
                     logPowerLineDB("Clamp2", currentLocation, (power["power2"]["power"]*hoursoflogging), power["power2"]["averagecount"])                   
                     logPowerLineDB("240v Total", currentLocation, twofortyload, power["power4"]["averagecount"])
                     logPowerLineDB("120v Total", currentLocation, onetwentyload, power["power4"]["averagecount"])
+                    logPowerLineDB("House Total", currentLocation, (onetwentyload + twofortyload), power["power4"]["averagecount"])
                     #hoursoflogging = 0     
                     twofortyload = 0
                     onetwentyload = 0 
@@ -166,7 +173,7 @@ class PowerPoller(threading.Thread):
         logging.info("ended")
     
     def to_JSON(self):
-        return json.dumps({"twofortywatts" : self.twofortywatts, "onetwentywatts" : self.onetwentywatts, "clamp1watts" : self.clamp1watts, "clamp2watts" : self.clamp2watts  })
+        return json.dumps({"twofortywatts" : self.twofortywatts, "onetwentywatts" : self.onetwentywatts, "clamp1watts" : self.clamp1watts, "clamp2watts" : self.clamp2watts, "totalwatts" : self.totalwatts  })
  
  
 

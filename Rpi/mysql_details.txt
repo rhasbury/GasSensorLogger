@@ -1,3 +1,7 @@
 CREATE TABLE gasdat (tdate DATETIME, zone TEXT, type TEXT, gasreading NUMERIC);
 
 CREATE TABLE powerdat (tdate DATETIME, zone TEXT, type TEXT, powerreading NUMERIC(7,2), averagecount NUMERIC);
+
+CREATE TABLE raindat (tdate DATETIME, zone TEXT, type TEXT, rainreading NUMERIC);
+
+CREATE TABLE raindat (tdate DATETIME, zone TEXT, type TEXT, rainreading NUMERIC);
