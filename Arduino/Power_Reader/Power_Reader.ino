@@ -1,6 +1,23 @@
 // EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
 
 #include "EmonLib.h"                   // Include Emon Library
+#include <EEPROM.h>
+char sID[7];
+
+#define OLEDINSTALLED true
+
+#if (OLEDINSTALLED == true)
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+#endif
+
+
+
 EnergyMonitor emon1;                   // Create an instance
 EnergyMonitor emon2;                   // Create an instance
 EnergyMonitor emon3;                   // Create an instance
@@ -18,12 +35,32 @@ int AverageCount = 0;
 
 void setup()
 {  
+  
+   for (int i=0; i<6; i++) {
+   sID[i] = EEPROM.read(i);
+   }
+  
   Serial.begin(115200);
+
+  #if (OLEDINSTALLED == true)
+  // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+  // init done
+
+  // Clear the buffer.
+  //display.clearDisplay();
+  //display.display();
+  //delay(50);
+  //display.clearDisplay();
+  #endif
+
+  
   inputString.reserve(200);
-  emon1.current(0, 111.11);             // Current: input pin, calibration.
-  emon2.current(1, 111.11);             // Current: input pin, calibration.
-  emon3.current(2, 606.0);             // Current: input pin, calibration.
-  emon4.current(3, 606.0);             // Current: input pin, calibration.
+  emon1.current(A2, 15);             // Current: input pin, calibration.
+  emon2.current(A3, 20);             // Current: input pin, calibration.
+  emon3.current(A0, 606.0);             // Current: input pin, calibration.
+  emon4.current(A1, 606.0);             // Current: input pin, calibration.
+
 }
 
 void loop()
@@ -40,11 +77,36 @@ void loop()
       }
     }
 
-  powersum1 = powersum1 + emon1.calcIrms(1480);
-  powersum2 = powersum2 + emon2.calcIrms(1480);
-  powersum3 = powersum3 + emon3.calcIrms(1480);
-  powersum4 = powersum4 + emon4.calcIrms(1480);
+
+
+  double Irms1 = emon1.calcIrms(1480);  // Calculate Irms only
+  double Irms2 = emon2.calcIrms(1480);  // Calculate Irms only
+  double Irms3 = emon3.calcIrms(1480);  // Calculate Irms only
+  double Irms4 = emon4.calcIrms(1480);  // Calculate Irms only
+
+
+  powersum1 = powersum1 + Irms1;
+  powersum2 = powersum2 + Irms2;
+  powersum3 = powersum3 + Irms3;
+  powersum4 = powersum4 + Irms4;
   AverageCount++;
+
+  #if (OLEDINSTALLED == true)
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println(Irms1);
+  display.setCursor(0,15);
+  display.println(Irms2);
+  display.display();  
+
+  #endif
+  
+
+
+
+
   
   if (stringComplete) {
     //Serial.println(inputString);
@@ -90,7 +152,11 @@ void loop()
     }   
 
     if(inputString.indexOf("whatis") >= 0){        
-      Serial.println("power");
+      Serial.print("power, ");
+      Serial.println(sID);
+    }
+    if(inputString.indexOf("get_serial") >= 0){        
+      Serial.println(sID);
     }
 
           
