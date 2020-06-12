@@ -5,7 +5,7 @@
 #include "Adafruit_CCS811.h"
 #include "CircularBuffer.h"
 
-const int loopdelay = 10;  // 10 ms loopdelay
+const int loopdelay = 1000;  // 10 ms loopdelay
 const int buffsize = 20;  // 10 ms loopdelay
 
 
@@ -28,6 +28,9 @@ void setup()
   Serial.begin(115200); //Initialize serial port
   Serial.println(SDA);
   Serial.println(SCL);
+   
+  pinMode(5, OUTPUT); //setup nWAKE pin
+  digitalWrite(5, LOW);
    // reserve 200 bytes for the inputString:
   if(!ccs.begin()){
     Serial.println("Failed to start sensor! Please check your wiring.");    
@@ -36,10 +39,22 @@ void setup()
   inputString.reserve(200);
 }
 
+
+
 void loop()
 {
-  
-  
+    if(Serial.available()) {
+      // get the new byte:
+      char inChar = (char)Serial.read();
+      // add it to the inputString:
+      inputString += inChar;
+      // if the incoming character is a newline, set a flag
+      // so the main loop can do something about it:
+      if (inChar == '\n' or inChar == ';') {
+        stringComplete = true;
+      }
+  }
+
 
   a0_buff.push(analogRead(A0));
   a1_buff.push(analogRead(A1));
@@ -76,7 +91,7 @@ void loop()
     }
     
     
-    if(inputString.indexOf("get_a0_avg") >= 0){
+    if(inputString.indexOf("get_tvoc_avg") >= 0){
         float avg = 0.0;
         // the following ensures using the right type for the index variable
         using index_t = decltype(tvoc_buff)::index_t;
@@ -85,6 +100,48 @@ void loop()
         }        
         Serial.println(avg); 
     }
+
+    if(inputString.indexOf("get_co2_avg") >= 0){
+        float avg = 0.0;
+        // the following ensures using the right type for the index variable
+        using index_t = decltype(co2_buff)::index_t;
+        for (index_t i = 0; i < co2_buff.size(); i++) {
+          avg += co2_buff[i] / co2_buff.size();
+        }        
+        Serial.println(avg); 
+    }
+
+    if(inputString.indexOf("get_a0_avg") >= 0){
+        float avg = 0.0;
+        // the following ensures using the right type for the index variable
+        using index_t = decltype(a0_buff)::index_t;
+        for (index_t i = 0; i < a0_buff.size(); i++) {
+          avg += a0_buff[i] / a0_buff.size();
+        }        
+        Serial.println(avg); 
+    }
+
+    if(inputString.indexOf("get_a1_avg") >= 0){
+        float avg = 0.0;
+        // the following ensures using the right type for the index variable
+        using index_t = decltype(a1_buff)::index_t;
+        for (index_t i = 0; i < a1_buff.size(); i++) {
+          avg += a1_buff[i] / a1_buff.size();
+        }        
+        Serial.println(avg); 
+    }
+    
+    if(inputString.indexOf("get_a2_avg") >= 0){
+        float avg = 0.0;
+        // the following ensures using the right type for the index variable
+        using index_t = decltype(a2_buff)::index_t;
+        for (index_t i = 0; i < a2_buff.size(); i++) {
+          avg += a2_buff[i] / a2_buff.size();
+        }        
+        Serial.println(avg); 
+    }
+
+    
     //Serial.println(inputString);    
     inputString = "";
     stringComplete = false;
@@ -94,25 +151,4 @@ void loop()
   
   
   delay(loopdelay); // Print value every 1 sec.
-}
-
-
-/*
-  SerialEvent occurs whenever a new data comes in the
- hardware serial RX.  This routine is run between each
- time loop() runs, so using delay inside loop can delay
- response.  Multiple bytes of data may be available.
- */
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inChar == '\n' or inChar == ';') {
-      stringComplete = true;
-    }
-  }
 }
