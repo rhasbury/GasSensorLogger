@@ -5,8 +5,8 @@
 #include "Adafruit_CCS811.h"
 #include "CircularBuffer.h"
 
-const int loopdelay = 1000;  // 10 ms loopdelay
-const int buffsize = 20;  // 10 ms loopdelay
+const int loopdelay = 100;  // 10 ms loopdelay
+const int buffsize = 100;  //
 
 
 CircularBuffer<int, buffsize> a0_buff;
@@ -139,6 +139,63 @@ void loop()
           avg += a2_buff[i] / a2_buff.size();
         }        
         Serial.println(avg); 
+    }
+
+        
+    if(inputString.indexOf("get_all_avg_json") >= 0){
+      float avg = 0.0;
+      // the following ensures using the right type for the index variable
+      using index_t = decltype(a0_buff)::index_t;
+      for (index_t i = 0; i < a0_buff.size(); i++) {
+        avg += a0_buff[i] / a0_buff.size();
+      }        
+      Serial.print("{\"a0_avg\" : ");
+      Serial.print(avg);                              
+
+      avg = 0.0;
+      // the following ensures using the right type for the index variable
+      using index_t = decltype(a1_buff)::index_t;
+      for (index_t i = 0; i < a1_buff.size(); i++) {
+        avg += a1_buff[i] / a1_buff.size();
+      }        
+          
+      Serial.print(", \"a1_avg\" : ");
+      Serial.print(avg);
+
+      avg = 0.0;
+      // the following ensures using the right type for the index variable
+      using index_t = decltype(a2_buff)::index_t;
+      for (index_t i = 0; i < a2_buff.size(); i++) {
+        avg += a2_buff[i] / a2_buff.size();
+      }  
+      
+      Serial.print(", \"a2_avg\" : ");
+      Serial.print(avg);
+
+      
+      avg = 0.0;
+      // the following ensures using the right type for the index variable
+      using index_t = decltype(co2_buff)::index_t;
+      for (index_t i = 0; i < co2_buff.size(); i++) {
+        avg += co2_buff[i] / co2_buff.size();
+      }
+      
+      Serial.print(", \"co2_avg\" : ");
+      Serial.print(avg);
+
+      
+      avg = 0.0;
+      // the following ensures using the right type for the index variable
+      using index_t = decltype(tvoc_buff)::index_t;
+      for (index_t i = 0; i < tvoc_buff.size(); i++) {
+        avg += tvoc_buff[i] / tvoc_buff.size();
+      }   
+      
+      Serial.print(", \"tvoc_avg\" : ");
+      Serial.print(avg);
+      
+      Serial.println("}");
+        //Serial.println(avg); 
     }
 
     
