@@ -1,6 +1,6 @@
 import os
 import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='/home/pi/GasSensorLogger/Rpi/gassensor.log', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='./gassensor.log', level=logging.DEBUG)
 import datetime
 import pymysql.cursors
 import time
@@ -11,13 +11,14 @@ import math
 import signal
 import serial
 import glob
+import json
 
 currentLocation = 'basement'
 loginterval = 300 # in seconds
 errordelay = 3000 # in seconds
 
 serialPort = None
-baud = 9600
+baud = 115200
 
 gpsd = None #seting the global variable
 gpsp = None #
@@ -33,7 +34,7 @@ def signal_quitting(signal, frame):
 
 def logGaslineDB(type, location, gasreading):    
     try:
-        connection = pymysql.connect(host='localhost', user='monitor', passwd='password', db='temps', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+        connection = pymysql.connect(host='192.168.1.104', user='monitor', passwd='password', db='temps', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
             cursor.execute ("INSERT INTO gasdat values(NOW(), %s, %s, %s)", (location, type, gasreading))
         connection.commit()
@@ -66,8 +67,9 @@ class GasPoller(threading.Thread):
                 ser.flushInput()
                 
                 ser.write(b'get_all_avg_json;')       
-                time.sleep(0.2)
+                time.sleep(0.8)
                 data = ser.readline()            
+                logging.info(data)
                 gases = json.loads(data.decode("utf-8"))
 
                 #print("a0: {}  a1: {}  a2:  {} dust {}".format(int(a0), int(a1), int(a2), int(dust)))
